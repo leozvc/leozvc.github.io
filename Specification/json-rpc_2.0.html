@@ -18,17 +18,29 @@
 <div class="clearfix"></div>
 <div id="title">JSON-RPC 2.0 规范</div>
   <div id="content">
-  <div class="toc"><span class="toctitle">Table of Contents</span><ul>
-<li><a href="#_1">起源时间:</a><ul>
-<li><a href="#_2">更新:</a></li>
-<li><a href="#_3">作者:</a></li>
-<li><a href="#_4">翻译:</a></li>
-</ul>
+  <ul>
+<li>
+<p>起源时间: 2010-03-26(根据2010-03-26版)</p>
 </li>
+<li>
+<p>更新: 2013-01-04</p>
+</li>
+<li>
+<p>作者: <a href="https://groups.google.com/forum/#!forum/json-rpc">JSON-RPC工作组</a>&lt; json-rpc@googlegroups.com &gt;</p>
+</li>
+<li>
+<p>翻译:  leozvc &lt; xxfs91@gmail.com &gt;</p>
+</li>
+</ul>
+<div class="toc"><span class="toctitle">Table of Contents</span><ul>
 <li><a href="#1">1.概述</a></li>
 <li><a href="#2">2.约定</a></li>
 <li><a href="#3">3.兼容性</a></li>
 <li><a href="#4">4.请求对象</a><ul>
+<li><a href="#jsonrpc">jsonrpc</a></li>
+<li><a href="#method">method</a></li>
+<li><a href="#params">params</a></li>
+<li><a href="#id">id</a></li>
 <li><a href="#41">4.1通知</a></li>
 <li><a href="#42">4.2参数结构</a></li>
 <li><a href="#43">4.3响应对象</a></li>
@@ -40,36 +52,28 @@
 <li><a href="#7">7.扩展</a></li>
 </ul>
 </div>
-<h4 id="_1">起源时间:</h4>
-<p>2010-03-26(根据2010-03-26版)</p>
-<h5 id="_2">更新:</h5>
-<p>2013-01-04</p>
-<h5 id="_3">作者:</h5>
-<p><a href="https://groups.google.com/forum/#!forum/json-rpc">JSON-RPC工作组</a>&lt; json-rpc@googlegroups.com &gt;</p>
-<h5 id="_4">翻译:</h5>
-<p>leozvc &lt; xxfs91@gmail.com &gt;</p>
 <h2 id="1">1.概述</h2>
 <p>JSON-RPC是一个无状态且轻量级的远程过程调用(RPC)协议。 本规范主要定义了一些数据结构及其相关的处理规则。它允许运行在基于socket,http等诸多不同消息传输环境的同一进程中。其使用<a href="http://www.json.org/">JSON</a>（<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>）作为数据格式。  </p>
 <p>它为简单而生!</p>
 <h2 id="2">2.约定</h2>
-<p>文档中关键字"MUST"、"MUST NOT"、"REQUIRED"、"SHALL"、"SHALL NOT"、"SHOULD"、"SHOULD NOT"、"RECOMMENDED"、"MAY"和 "OPTIONAL" 将在<a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a> 中得到详细的描述解释。</p>
-<p>由于JSON-RPC使用JSON，它具有与其相同的类型系统(见<a href="http://www.json.org">http://www.json.org</a>或<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)。JSON可以表示四个基本类型(String、Numbers、Booleans和Null)和两个结构化类型(Objects和Arrays)。 xxxxx，任何时候文档涉及任何JSON数据类型，第一个字母都必须大写：Object，Array，String，Number，Boolean，Null。包括True和False也要大写。</p>
-<p>所有成员名称的客户机和服务器之间交换考虑匹配任何类型的应该被认为是区分大小写的。 条件函数,方法,过程可以被认为是可互换的。
-定义客户端请求对象的起源和响应对象的处理程序。
-服务器被定义为响应对象的起源和请求处理程序的对象。</p>
-<p>该规范的一个实现很容易填补这两个角色,即使是在同一时间,其他不同的客户或相同的客户机。 该规范并没有解决这一层的复杂性。</p>
+<p>文档中关键字"MUST"、"MUST NOT"、"REQUIRED"、"SHALL"、"SHALL NOT"、"SHOULD"、"SHOULD NOT"、"RECOMMENDED"、"MAY"和 "OPTIONAL" 将在<a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a> 中得到详细的解释及描述。</p>
+<p>由于JSON-RPC使用JSON，它具有与其相同的类型系统(见<a href="http://www.json.org">http://www.json.org</a>或<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)。JSON可以表示四个基本类型(String、Numbers、Booleans和Null)和两个结构化类型(Objects和Arrays)。 规范中，术语“Primitive”标记那4种原始类型，“Structured”标记两种结构化类型。任何时候文档涉及JSON数据类型，第一个字母都必须大写：Object，Array，String，Number，Boolean，Null。包括True和False也要大写。</p>
+<p>在客户端与任何被匹配到的服务端之间交换的所有成员名字应是区分大小写的。 函数、方法、过程都可以认为是可以互换的。</p>
+<p>客户端被定义为请求对象的来源及响应对象的处理程序。</p>
+<p>服务器被定义为响应对象的起源和请求对象的处理程序。</p>
+<p>该规范的一种实现为可以轻而易举的填补这两个角色,即使是在同一时间,同一客户端或其他不相同的客户端。 该规范不涉及复杂层。</p>
 <h2 id="3">3.兼容性</h2>
-<p>2.0 json - rpc请求对象和响应对象可能不兼容现有的json - rpc 1.0客户机或服务器。 然而,很容易区分两个版本2.0总是有一个名叫“jsonrpc”成员字符串值2.0“2.0”而没有。 大多数2.0实现应该考虑试图处理1.0对象,即使不是1.0的点对点和类暗示方面。</p>
+<p>JSON-RPC 2.0 的请求对象和响应对象可能无法在现用的JSON-RPC 1.0 客户端或服务端工作，然而我们可以很容易在两个版本间区分出2.0，总会包含一个成员命名为 “jsonrpc” 且值为“2.0”， 而1.0版本是不包含的。大部分的2.0实现应该考虑尝试处理1.0的对象，即使不是对等的也应给其相关提示。</p>
 <h2 id="4">4.请求对象</h2>
-<p>由rpc调用对象向服务器发送请求。 请求对象有以下成员:
-JsonRPC
-一个字符串指定版本的json - rpc协议。 必须完全“2.0”。
-方法
-一个字符串包含要调用的方法的名称。 以这个词开始的方法名rpc紧随其后的是一段字符(U + 002 e或ASCII 46)留给rpc-internal方法和扩展,不得用于其它任何事情。
-参数个数
-结构化的价值持有期间所使用的参数值调用的方法。 这个成员可以省略。
-id
-客户建立的一个标识符,必须包含一个字符串,数字,或如果包含空值。 如果它不包括它被认为是一个通知。 值一般不应该为空[1]和数字不应该包含小数部分[2]
+<p>发送一个请求对象至服务端代表一个rpc调用， 一个请求对象包含下列成员：</p>
+<h6 id="jsonrpc">jsonrpc</h6>
+<p>指定JSON-RPC协议版本的字符串，必须准确写为“2.0”</p>
+<h6 id="method">method</h6>
+<p>包含所要调用方法名称的字符串，表示为以rpc开头的方法名，用英文句号（U+002E or ASCII 46）连接rpc内部方法名及扩展名，并且不能在其他地方使用。</p>
+<h6 id="params">params</h6>
+<p>调用方法所需要的结构化数值，该成员参数可以被省略。</p>
+<h6 id="id">id</h6>
+<p>客户建立的一个标识符,必须包含一个字符串,数字,或如果包含空值。 如果它不包括它被认为是一个通知。 值一般不应该为空[1]和数字不应该包含小数部分[2]
 服务器必须回答相同的值如果包含在响应对象。 这个成员用来两个对象之间的关联上下文。
 [1]使用Null值id成员请求对象是气馁,因为该规范使用Null值为响应未知id。另外,因为json - rpc 1.0使用id值为空的处理通知这可能导致的混乱。
 [2]部分地区可能有问题,因为许多十进制分数不能代表完全按照二进制分数。</p>
