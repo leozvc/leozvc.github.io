@@ -28,19 +28,14 @@
 <li>
 <p>作者: <a href="https://groups.google.com/forum/#!forum/json-rpc">JSON-RPC工作组</a>&lt; json-rpc@googlegroups.com &gt;</p>
 </li>
-<li>
-<p>翻译:  leozvc &lt; xxfs91@gmail.com &gt;</p>
-</li>
+<li>原文链接: <a href="http://www.jsonrpc.org/specification">http://www.jsonrpc.org/specification</a></li>
+<li>翻译:  leozvc &lt; xxfs91@gmail.com &gt;</li>
 </ul>
 <div class="toc"><span class="toctitle">Table of Contents</span><ul>
 <li><a href="#1">1.概述</a></li>
 <li><a href="#2">2.约定</a></li>
 <li><a href="#3">3.兼容性</a></li>
 <li><a href="#4">4.请求对象</a><ul>
-<li><a href="#jsonrpc">jsonrpc</a></li>
-<li><a href="#method">method</a></li>
-<li><a href="#params">params</a></li>
-<li><a href="#id">id</a></li>
 <li><a href="#41">4.1通知</a></li>
 <li><a href="#42">4.2参数结构</a></li>
 <li><a href="#43">4.3响应对象</a></li>
@@ -60,21 +55,29 @@
 <p>由于JSON-RPC使用JSON，它具有与其相同的类型系统(见<a href="http://www.json.org">http://www.json.org</a>或<a href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>)。JSON可以表示四个基本类型(String、Numbers、Booleans和Null)和两个结构化类型(Objects和Arrays)。 规范中，术语“Primitive”标记那4种原始类型，“Structured”标记两种结构化类型。任何时候文档涉及JSON数据类型，第一个字母都必须大写：Object，Array，String，Number，Boolean，Null。包括True和False也要大写。</p>
 <p>在客户端与任何被匹配到的服务端之间交换的所有成员名字应是区分大小写的。 函数、方法、过程都可以认为是可以互换的。</p>
 <p>客户端被定义为请求对象的来源及响应对象的处理程序。</p>
-<p>服务器被定义为响应对象的起源和请求对象的处理程序。</p>
+<p>服务端被定义为响应对象的起源和请求对象的处理程序。</p>
 <p>该规范的一种实现为可以轻而易举的填补这两个角色,即使是在同一时间,同一客户端或其他不相同的客户端。 该规范不涉及复杂层。</p>
 <h2 id="3">3.兼容性</h2>
 <p>JSON-RPC 2.0 的请求对象和响应对象可能无法在现用的JSON-RPC 1.0 客户端或服务端工作，然而我们可以很容易在两个版本间区分出2.0，总会包含一个成员命名为 “jsonrpc” 且值为“2.0”， 而1.0版本是不包含的。大部分的2.0实现应该考虑尝试处理1.0的对象，即使不是对等的也应给其相关提示。</p>
 <h2 id="4">4.请求对象</h2>
 <p>发送一个请求对象至服务端代表一个rpc调用， 一个请求对象包含下列成员：</p>
-<h4 id="jsonrpc">jsonrpc</h4>
+<p><strong>jsonrpc</strong></p>
+<blockquote>
 <p>指定JSON-RPC协议版本的字符串，必须准确写为“2.0”</p>
-<h4 id="method">method</h4>
+</blockquote>
+<p><strong>method</strong></p>
+<blockquote>
 <p>包含所要调用方法名称的字符串，表示为以rpc开头的方法名，用英文句号（U+002E or ASCII 46）连接rpc内部方法名及扩展名，并且不能在其他地方使用。</p>
-<h4 id="params">params</h4>
+</blockquote>
+<p><strong>params</strong></p>
+<blockquote>
 <p>调用方法所需要的结构化参数值，该成员参数可以被省略。</p>
-<h4 id="id">id</h4>
+</blockquote>
+<p><strong>id</strong></p>
+<blockquote>
 <p>已建立客户端的唯一标识id，值必须包含一个字符串、数值或NULL空值。如果不包含该成员则被认定为是一个通知。该值一般不为NULL<a href="#id1">[1]</a>，若为数值则不应该包含小数<a href="#id2">[2]</a>。</p>
-<p>服务器必须回答相同的值如果包含在响应对象。 这个成员用来两个对象之间的关联上下文。</p>
+</blockquote>
+<p>服务端必须回答相同的值如果包含在响应对象。 这个成员用来两个对象之间的关联上下文。</p>
 <p><A NAME="id1">[1]</A>
 在请求对象中不建议使用NULL作为id值，因为该规范将使用空值认定为未知id的请求。另外，由于JSON-RPC 1.0 的通知使用了空值，这可能引起处理上的混淆。</p>
 <p><A NAME="id2">[2]</A>
@@ -84,26 +87,40 @@
 作为通知的请求对象表明客户端对相应的响应对象并不感兴趣，本身也没有响应对象需要返回给科幻的。服务端必须不回复一个通知，包含那些批量请求中的。</p>
 <p>由于通知没有返回的响应对象，所以通知不确定是否被定义。同样，客户端不会意识到任何错误（例如参数缺省，内部错误）。</p>
 <h3 id="42">4.2参数结构</h3>
-<p>如果存在,必须提供rpc调用的参数作为一个结构化的值。 按照位置通过一个数组或者很通过一个对象。
-位置:参数必须是一个数组,包含服务器中的值预期秩序。
-很:参数必须是一个对象,与成员名称相匹配的服务器将参数名称。 没有预期的名字可能会导致一个错误产生。 名称必须完全匹配,包括方法的情况下,预期的参数。</p>
+<p>rpc调用如果存在参数则必须为基本类型或结构化类型的参数值，要么为按位来的数组，要么为按名称来的对象。</p>
+<ul>
+<li>
+<p>按位：参数必须为数组，并包含与服务端预期顺序一致的参数值。</p>
+</li>
+<li>
+<p>按名称：参数必须为对象，并包含与服务端相匹配的参数成员名称。没有在预期中的成员名称可能会引起错误。名称必须完全匹配，包括方法的预期参数名以及大小写。</p>
+</li>
+</ul>
 <h3 id="43">4.3响应对象</h3>
-<p>发出rpc调用时,服务器必须回复响应,在通知的情况下除外。 响应表示为一个JSON对象,使用以下成员:
-JsonRPC
-一个字符串指定版本的json - rpc协议。 必须完全“2.0”。
-结果
-上需要这个成员的成功。
-这个会员必须不存在如果有一个错误调用方法。
-这个成员的值是由服务器上的方法调用。
-错误
-上需要这个成员的错误。
-这个会员必须不存在期间如果没有错误触发调用。
-这个成员的值必须是5.1节中定义的对象。
-id
-这个成员是必需的。
-必须相同id的值在请求对象成员。
-如果有一个错误在检测请求对象的id(例如解析错误/无效的请求),它必须为空。
-结果成员或错误成员必须包括,但不得包含成员。</p>
+<p>当发起一个rpc调用时，除通知之外，服务端都必须回复响应。响应表示为一个JSON对象，使用以下成员：</p>
+<p><strong>jsonrpc</strong></p>
+<blockquote>
+<p>指定JSON-RPC协议版本的字符串，必须准确写为“2.0”</p>
+</blockquote>
+<p><strong>result</strong></p>
+<blockquote>
+<p>该成员在成功时必须包含。</p>
+<p>当调用方法引起错误时必须不包含该成员。</p>
+<p>服务端中的被调用方法决定了该成员的值。</p>
+</blockquote>
+<p><strong>error</strong></p>
+<blockquote>
+<p>该成员在失败是必须包含。</p>
+<p>当没有引起错误的时必须不包含该成员。</p>
+<p>该成员参数值必须为5.1中定义的对象。</p>
+</blockquote>
+<p><strong>id</strong></p>
+<blockquote>
+<p>该成员必须包含。</p>
+<p>该成员值必须于请求对象中的id成员值一致。</p>
+<p>若在检查请求对象id时错误（例如参数错误或无效请求），则该值必须为空值。</p>
+</blockquote>
+<p>响应对象必须包含result或error成员，但两个成员必须不能同时包含。</p>
 <h3 id="44">4.4错误对象</h3>
 <p>rpc调用时遇到错误,错误响应对象必须包含成员的值是一个对象,以下成员:
 代码
