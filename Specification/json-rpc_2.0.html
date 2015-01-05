@@ -38,13 +38,15 @@
 <li><a href="#4">4.请求对象</a><ul>
 <li><a href="#41">4.1通知</a></li>
 <li><a href="#42">4.2参数结构</a></li>
-<li><a href="#43">4.3响应对象</a></li>
-<li><a href="#44">4.4错误对象</a></li>
 </ul>
 </li>
-<li><a href="#5">5.批</a></li>
-<li><a href="#6">6.例</a></li>
-<li><a href="#7">7.扩展</a></li>
+<li><a href="#5">5.响应对象</a><ul>
+<li><a href="#51">5.1错误对象</a></li>
+</ul>
+</li>
+<li><a href="#6">6.批量调用</a></li>
+<li><a href="#7">7.示例</a></li>
+<li><a href="#7_1">7.扩展</a></li>
 </ul>
 </div>
 <h2 id="1">1.概述</h2>
@@ -96,7 +98,7 @@
 <p>按名称：参数必须为对象，并包含与服务端相匹配的参数成员名称。没有在预期中的成员名称可能会引起错误。名称必须完全匹配，包括方法的预期参数名以及大小写。</p>
 </li>
 </ul>
-<h3 id="43">4.3响应对象</h3>
+<h2 id="5">5.响应对象</h2>
 <p>当发起一个rpc调用时，除通知之外，服务端都必须回复响应。响应表示为一个JSON对象，使用以下成员：</p>
 <p><strong>jsonrpc</strong></p>
 <blockquote>
@@ -121,87 +123,184 @@
 <p>若在检查请求对象id时错误（例如参数错误或无效请求），则该值必须为空值。</p>
 </blockquote>
 <p>响应对象必须包含result或error成员，但两个成员必须不能同时包含。</p>
-<h3 id="44">4.4错误对象</h3>
-<p>rpc调用时遇到错误,错误响应对象必须包含成员的值是一个对象,以下成员:
-代码
-这一数字表明发生的错误类型。
-这必须是一个整数。
-消息
-一个字符串提供一个简短的描述错误。
-消息应该被限制在一个简洁的一句话。
-数据
-一种原始的或结构化的值包含额外的信息错误。
-这可以省略。
-这个成员的值定义的服务器(如详细的错误信息,嵌套错误等)。
-错误代码,包括-32768年到-32000年是留给预定义的错误。 在这个范围内的任何代码,而不是显式地定义下面是保留以供将来使用。 提出的错误代码几乎是相同的---ml - rpc在以下网址:http://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php
-代码  消息  意义
--32700年 解析错误    无效的JSON是由服务器接收。
-一个错误发生在服务器在解析JSON文本。
--32600年 无效的请求   JSON发送不是一个有效的请求对象。
--32601年 没有找到方法  该方法不存在/不可用。
--32602年 无效的参数   无效的方法参数。
--32603年 内部错误    内部json - rpc错误。
--32000年到-32099年 服务器错误   预留给实现定义的服务器错误。
-剩余的空间可用于应用程序定义的错误。</p>
-<h2 id="5">5.批</h2>
-<p>同时发送多个请求对象,客户端可以发送充满请求对象数组。
-服务器应该响应与含有相应的响应对象的数组,毕竟已经处理批处理请求的对象。 响应对象应该为每个请求对象存在,除了不应当有任何通知的响应对象。 服务器可以处理一批rpc调用一组并发任务,处理在任何顺序和并行性的宽度。
-返回的响应对象被从一个批处理调用可能在任何顺序返回的数组中。 客户端应与上下文之间的请求对象和结果集的基于id的响应对象成员在每个对象。
-如果批处理rpc调用本身不能被认为是一个有效的JSON数组或至少有一个值,服务器的响应必须是一个单一的响应对象。 如果没有响应对象数组是包含在响应被发送到客户端,服务器不能返回一个空数组,返回一无所有。</p>
-<h2 id="6">6.例</h2>
-<p>语法:
---&lt; data sent to Server
-&lt;-- data="" sent="" to="" clientpre=""&gt;
-rpc调用位置参数:
---&lt; {"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}
-&lt;-- jsonrpc="" result="" id="" br="" style="font-size:12px;font-style:normal;font-weight:normal;font-family:Menlo, Monaco,;" courier="" new="" monospacecolorrgb="" /&gt;
---&lt; {"jsonrpc": "2.0", "method": "subtract", "params": [23, 42], "id": 2}&lt;-- jsonrpc="" result="" -="" id="" pre=""&gt;
-rpc调用命名参数:
---&lt; {"jsonrpc": "2.0", "method": "subtract", "params": {"subtrahend": 23, "minuend": 42}, "id": 3}&lt;-- jsonrpc="" result="" id="" --=""&gt; {"jsonrpc": "2.0", "method": "subtract", "params": {"minuend": 42, "subtrahend": 23}, "id": 4}&lt;-- jsonrpc="" result="" id="" pre=""&gt;
-通知:
---&lt; {"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]}
---&lt; {"jsonrpc": "2.0", "method": "foobar"}
-rpc调用不存在的方法:
---&lt; {"jsonrpc": "2.0", "method": "foobar", "id": "1"}
-&lt;-- jsonrpc="" error="" code="" -="" message="" method="" not="" found="" id="" pre=""&gt;
-无效的JSON rpc调用:
---&lt; {"jsonrpc": "2.0", "method": "foobar, "params": "bar", "baz]
-&lt;-- jsonrpc="" error="" code="" -="" message="" parse="" id="" nullpre=""&gt;
-无效的请求对象rpc调用:
---&lt; {"jsonrpc": "2.0", "method": 1, "params": "bar"}
-&lt;-- jsonrpc="" error="" code="" -="" message="" invalid="" request="" id="" nullpre=""&gt;
-无效的JSON rpc调用批处理:
---&lt; [  {"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"},  {"jsonrpc": "2.0", "method"]&lt;-- jsonrpc="" error="" code="" -="" message="" parse="" id="" nullpre=""&gt;
-rpc调用一个空数组:
---&lt; []&lt;-- jsonrpc="" error="" code="" -="" message="" invalid="" request="" id="" nullpre=""&gt;
-rpc调用一个无效的批处理(不是空的):
---&lt; [1]
-&lt;-- jsonrpc="" error="" code="" -="" message="" invalid="" request="" id="" nullpre=""&gt;
-rpc调用无效的批处理:
---&lt; [1,2,3]
-&lt;-- jsonrpc="" error="" code="" -="" message="" invalid="" request="" id="" null="" nullpre=""&gt;
-rpc调用批处理:
---&lt; [
-        {"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"},
-        {"jsonrpc": "2.0", "method": "notify_hello", "params": [7]},
-        {"jsonrpc": "2.0", "method": "subtract", "params": [42,23], "id": "2"},
-        {"foo": "boo"},
-        {"jsonrpc": "2.0", "method": "foo.get", "params": {"name": "myself"}, "id": "5"},
-        {"jsonrpc": "2.0", "method": "get_data", "id": "9"} 
-    ]
-&lt;-- br="" style="font-size:12px;font-style:normal;font-weight:normal;font-family:Menlo, Monaco,;" courier="" new="" monospacecolorrgb="" /&gt;        {"jsonrpc": "2.0", "result": 7, "id": "1"},
-        {"jsonrpc": "2.0", "result": 19, "id": "2"},
-        {"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request"}, "id": null},
-        {"jsonrpc": "2.0", "error": {"code": -32601, "message": "Method not found"}, "id": "5"},
-        {"jsonrpc": "2.0", "result": ["hello", 5], "id": "9"}
-    ]
-rpc调用批处理(所有通知):
---&lt; [
- {"jsonrpc": "2.0", "method": "notify_sum", "params": [1,2,4]},
- {"jsonrpc": "2.0", "method": "notify_hello", "params": [7]}
- ]
-&lt;-- nothing="" is="" returned="" for="" all="" notification="" batchespre=""&gt;</p>
-<h2 id="7">7.扩展</h2>
+<h3 id="51">5.1错误对象</h3>
+<p>当一个rpc调用遇到错误时，返回的响应对象必须包含错误成员参数，并且为带有下列成员参数的对象：</p>
+<p><strong>code</strong></p>
+<blockquote>
+<p>使用数值表示该异常的错误类型。
+必须为整数。</p>
+</blockquote>
+<p><strong>message</strong></p>
+<blockquote>
+<p>对该错误的简单描述字符串。
+该描述应尽量限定在简短的一句话。</p>
+</blockquote>
+<p><strong>data</strong></p>
+<blockquote>
+<p>包含关于错误附加信息的基本类型或结构化类型。该成员可忽略。
+该成员值由服务端定义（例如详细的错误信息，嵌套的错误等）。</p>
+</blockquote>
+<p>-32768至-32000为保留的预定义错误代码。在该范围内的错误代码不能被明确定义，保留下列以供将来使用。错误代码基本与XML-RPC建议的一样，url：
+<a href="http://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php">http://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php</a></p>
+<table>
+<thead>
+<tr>
+<th>code</th>
+<th>message</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-32700</td>
+<td>Parse error语法解析错误</td>
+<td>服务端接收到无效的json。该错误发送于服务器尝试解析json文本</td>
+</tr>
+<tr>
+<td>-32600</td>
+<td>Invalid Request无效请求</td>
+<td>发送的json不是一个有效的请求对象。</td>
+</tr>
+<tr>
+<td>-32601</td>
+<td>Method not found找不到方法</td>
+<td>该方法不存在或无效</td>
+</tr>
+<tr>
+<td>-32602</td>
+<td>Invalid params无效的参数</td>
+<td>无效的方法参数。</td>
+</tr>
+<tr>
+<td>-32603</td>
+<td>Internal error内部错误</td>
+<td>JSON-RPC内部错误。</td>
+</tr>
+<tr>
+<td>-32000 to -32099</td>
+<td>Server error服务端错误</td>
+<td>预留用于自定义的服务器错误。</td>
+</tr>
+</tbody>
+</table>
+<p>除此之外剩余的错误类型代码可供应用程序作为自定义错误。</p>
+<h2 id="6">6.批量调用</h2>
+<p>当需要同时发送多个请求对象时，客户端可以发送一个包含所有请求对象的数组。</p>
+<p>当批量调用的所有请求对象处理完成时，服务端则需要返回一个包含相对应的响应对象数组。每个响应对象都应对应每个请求对象，除非是通知的请求对象。服务端可以并发的，以任意顺序和任意宽度的并行性来处理这些批量调用。</p>
+<p>这些相应的响应对象可以任意顺序的包含在返回的数组中，而客户端应该是基于各个响应对象中的id成员来匹配对应的请求对象。</p>
+<p>若批量调用的rpc操作本身非一个有效json或一个至少包含一个值的数组，则服务端返回的将单单是一个响应对象而非数组。若批量调用没有需要返回的响应对象，则服务端不需要返回任何结果且必须不能返回一个空数组给客户端。</p>
+<h2 id="7">7.示例</h2>
+<p>Syntax:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> data sent to Server
+<span class="o">&lt;--</span> data sent to Client
+</pre></div>
+
+
+<p>rpc call with positional parameters:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;subtract&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">42</span><span class="p">,</span> <span class="m">23</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">1</span><span class="p">}</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">19</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">1</span><span class="p">}</span>
+
+<span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;subtract&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">23</span><span class="p">,</span> <span class="m">42</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">2</span><span class="p">}</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">-19</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">2</span><span class="p">}</span>
+</pre></div>
+
+
+<p>rpc call with named parameters:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;subtract&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;subtrahend&quot;</span><span class="o">:</span> <span class="m">23</span><span class="p">,</span> <span class="s">&quot;minuend&quot;</span><span class="o">:</span> <span class="m">42</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">3</span><span class="p">}</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">19</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">3</span><span class="p">}</span>
+
+<span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;subtract&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;minuend&quot;</span><span class="o">:</span> <span class="m">42</span><span class="p">,</span> <span class="s">&quot;subtrahend&quot;</span><span class="o">:</span> <span class="m">23</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">4</span><span class="p">}</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">19</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">4</span><span class="p">}</span>
+</pre></div>
+
+
+<p>a Notification:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;update&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+<span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;foobar&quot;</span><span class="p">}</span>
+</pre></div>
+
+
+<p>rpc call of non-existent method:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">}</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32601</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Method not found&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">}</span>
+</pre></div>
+
+
+<p>rpc call with invalid JSON:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;foobar, &quot;</span>params<span class="s">&quot;: &quot;</span>bar<span class="s">&quot;, &quot;</span>baz<span class="p">]</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32700</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Parse error&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
+</pre></div>
+
+
+<p>rpc call with invalid Request object:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="m">1</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="s">&quot;bar&quot;</span><span class="p">}</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
+</pre></div>
+
+
+<p>rpc call Batch, invalid JSON:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;sum&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span>
+    <span class="p">]</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32700</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Parse error&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
+</pre></div>
+
+
+<p>rpc call with an empty Array:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[]</span>
+<span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
+</pre></div>
+
+
+<p>rpc call with an invalid Batch (but not empty):</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span><span class="m">1</span><span class="p">]</span>
+<span class="o">&lt;--</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
+    <span class="p">]</span>
+</pre></div>
+
+
+<p>rpc call with invalid Batch:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">3</span><span class="p">]</span>
+<span class="o">&lt;--</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
+    <span class="p">]</span>
+</pre></div>
+
+
+<p>rpc call Batch:</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;sum&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;notify_hello&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">7</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;subtract&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">42</span><span class="p">,</span><span class="m">23</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;2&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;foo&quot;</span><span class="o">:</span> <span class="s">&quot;boo&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;foo.get&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;name&quot;</span><span class="o">:</span> <span class="s">&quot;myself&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;5&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;get_data&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;9&quot;</span><span class="p">}</span> 
+    <span class="p">]</span>
+<span class="o">&lt;--</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">7</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">19</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;2&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32601</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Method not found&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;5&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s">&quot;hello&quot;</span><span class="p">,</span> <span class="m">5</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;9&quot;</span><span class="p">}</span>
+    <span class="p">]</span>
+</pre></div>
+
+
+<p>rpc call Batch (all notifications):</p>
+<div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;notify_sum&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;notify_hello&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">7</span><span class="p">]}</span>
+<span class="p">]</span>
+
+<span class="o">&lt;--</span> <span class="o">//</span>Nothing is returned <span class="kr">for</span> all notification batches
+</pre></div>
+
+
+<h2 id="7_1">7.扩展</h2>
 <p>方法名与rpc开始的。 预留给系统扩展,不得用于其它任何事情。 每个系统扩展中定义一个相关的规范。 所有系统的扩展是可选的。
 版权(C)2007 - 2010通过json - rpc工作组
 这个文档,翻译可以用来实现json - rpc,它可能被复制和家具,和衍生作品评论或解释或协助其实现可能准备,复制,发布和分发,在全部或部分,没有任何形式的限制,前提是上面的版权声明和本段包括在所有此类副本和衍生作品。 然而,这个文档本身可能不会以任何方式bemodified。
