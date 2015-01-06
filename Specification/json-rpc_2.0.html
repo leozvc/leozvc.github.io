@@ -29,7 +29,7 @@
 <p>作者: <a href="https://groups.google.com/forum/#!forum/json-rpc">JSON-RPC工作组</a>&lt; json-rpc@googlegroups.com &gt;</p>
 </li>
 <li>原文链接: <a href="http://www.jsonrpc.org/specification">http://www.jsonrpc.org/specification</a></li>
-<li>翻译:  leozvc &lt; xxfs91@gmail.com &gt;</li>
+<li>翻译:  <a href="[http://geekdream.com]">leozvc</a> &lt; xxfs91@gmail.com &gt;</li>
 </ul>
 <div class="toc"><span class="toctitle">Table of Contents</span><ul>
 <li><a href="#1">1.概述</a></li>
@@ -69,7 +69,7 @@
 </blockquote>
 <p><strong>method</strong></p>
 <blockquote>
-<p>包含所要调用方法名称的字符串，表示为以rpc开头的方法名，用英文句号（U+002E or ASCII 46）连接rpc内部方法名及扩展名，并且不能在其他地方使用。</p>
+<p>包含所要调用方法名称的字符串，以rpc开头的方法名，用英文句号（U+002E or ASCII 46）连接的为预留给rpc内部的方法名及扩展名，且不能在其他地方使用。</p>
 </blockquote>
 <p><strong>params</strong></p>
 <blockquote>
@@ -89,13 +89,13 @@
 作为通知的请求对象表明客户端对相应的响应对象并不感兴趣，本身也没有响应对象需要返回给科幻的。服务端必须不回复一个通知，包含那些批量请求中的。</p>
 <p>由于通知没有返回的响应对象，所以通知不确定是否被定义。同样，客户端不会意识到任何错误（例如参数缺省，内部错误）。</p>
 <h3 id="42">4.2参数结构</h3>
-<p>rpc调用如果存在参数则必须为基本类型或结构化类型的参数值，要么为按位来的数组，要么为按名称来的对象。</p>
+<p>rpc调用如果存在参数则必须为基本类型或结构化类型的参数值，要么为索引数组，要么为关联数组对象。</p>
 <ul>
 <li>
-<p>按位：参数必须为数组，并包含与服务端预期顺序一致的参数值。</p>
+<p>索引：参数必须为数组，并包含与服务端预期顺序一致的参数值。</p>
 </li>
 <li>
-<p>按名称：参数必须为对象，并包含与服务端相匹配的参数成员名称。没有在预期中的成员名称可能会引起错误。名称必须完全匹配，包括方法的预期参数名以及大小写。</p>
+<p>关联名称：参数必须为对象，并包含与服务端相匹配的参数成员名称。没有在预期中的成员名称可能会引起错误。名称必须完全匹配，包括方法的预期参数名以及大小写。</p>
 </li>
 </ul>
 <h2 id="5">5.响应对象</h2>
@@ -196,7 +196,7 @@
 </pre></div>
 
 
-<p>rpc call with positional parameters:</p>
+<p>带索引数组参数的rpc调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;subtract&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">42</span><span class="p">,</span> <span class="m">23</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">1</span><span class="p">}</span>
 <span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">19</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">1</span><span class="p">}</span>
 
@@ -205,7 +205,7 @@
 </pre></div>
 
 
-<p>rpc call with named parameters:</p>
+<p>带关联数组参数的rpc调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;subtract&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;subtrahend&quot;</span><span class="o">:</span> <span class="m">23</span><span class="p">,</span> <span class="s">&quot;minuend&quot;</span><span class="o">:</span> <span class="m">42</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">3</span><span class="p">}</span>
 <span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="o">:</span> <span class="m">19</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="m">3</span><span class="p">}</span>
 
@@ -214,31 +214,31 @@
 </pre></div>
 
 
-<p>a Notification:</p>
+<p>通知:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;update&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
 <span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;foobar&quot;</span><span class="p">}</span>
 </pre></div>
 
 
-<p>rpc call of non-existent method:</p>
+<p>不包含调用方法的rpc调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;foobar&quot;</span><span class="p">,</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">}</span>
 <span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32601</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Method not found&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">}</span>
 </pre></div>
 
 
-<p>rpc call with invalid JSON:</p>
+<p>包含无效json的rpc调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;foobar, &quot;</span>params<span class="s">&quot;: &quot;</span>bar<span class="s">&quot;, &quot;</span>baz<span class="p">]</span>
 <span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32700</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Parse error&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
 </pre></div>
 
 
-<p>rpc call with invalid Request object:</p>
+<p>包含无效请求对象的rpc调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="m">1</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="s">&quot;bar&quot;</span><span class="p">}</span>
 <span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
 </pre></div>
 
 
-<p>rpc call Batch, invalid JSON:</p>
+<p>包含无效json的rpc批量调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span>
         <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;sum&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">},</span>
         <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span>
@@ -247,13 +247,13 @@
 </pre></div>
 
 
-<p>rpc call with an empty Array:</p>
+<p>包含空数组的rpc调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[]</span>
 <span class="o">&lt;--</span> <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
 </pre></div>
 
 
-<p>rpc call with an invalid Batch (but not empty):</p>
+<p>非空且无效的rpc批量调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span><span class="m">1</span><span class="p">]</span>
 <span class="o">&lt;--</span> <span class="p">[</span>
     <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">}</span>
@@ -261,7 +261,7 @@
 </pre></div>
 
 
-<p>rpc call with invalid Batch:</p>
+<p>无效的rpc批量调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">3</span><span class="p">]</span>
 <span class="o">&lt;--</span> <span class="p">[</span>
     <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s">&quot;code&quot;</span><span class="o">:</span> <span class="m">-32600</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="o">:</span> <span class="s">&quot;Invalid Request&quot;</span><span class="p">},</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> null<span class="p">},</span>
@@ -271,7 +271,7 @@
 </pre></div>
 
 
-<p>rpc call Batch:</p>
+<p>rpc批量调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span>
     <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;sum&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">],</span> <span class="s">&quot;id&quot;</span><span class="o">:</span> <span class="s">&quot;1&quot;</span><span class="p">},</span>
     <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;notify_hello&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">7</span><span class="p">]},</span>
@@ -290,7 +290,7 @@
 </pre></div>
 
 
-<p>rpc call Batch (all notifications):</p>
+<p>所有都为通知的rpc批量调用:</p>
 <div class="hlcode"><pre><span class="o">--&gt;</span> <span class="p">[</span>
     <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;notify_sum&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">4</span><span class="p">]},</span>
     <span class="p">{</span><span class="s">&quot;jsonrpc&quot;</span><span class="o">:</span> <span class="s">&quot;2.0&quot;</span><span class="p">,</span> <span class="s">&quot;method&quot;</span><span class="o">:</span> <span class="s">&quot;notify_hello&quot;</span><span class="p">,</span> <span class="s">&quot;params&quot;</span><span class="o">:</span> <span class="p">[</span><span class="m">7</span><span class="p">]}</span>
@@ -301,11 +301,10 @@
 
 
 <h2 id="7_1">7.扩展</h2>
-<p>方法名与rpc开始的。 预留给系统扩展,不得用于其它任何事情。 每个系统扩展中定义一个相关的规范。 所有系统的扩展是可选的。
-版权(C)2007 - 2010通过json - rpc工作组
-这个文档,翻译可以用来实现json - rpc,它可能被复制和家具,和衍生作品评论或解释或协助其实现可能准备,复制,发布和分发,在全部或部分,没有任何形式的限制,前提是上面的版权声明和本段包括在所有此类副本和衍生作品。 然而,这个文档本身可能不会以任何方式bemodified。
-有限的权限授予上面是永恒的,不会撤销。
-这个文件和本文所包含的信息提供了“是”,所有的保证,明示或默示是否认,包括但不限于任何保证,使用这里的信息不会侵犯任何权利或任何隐含保证适销性或健身为特定目的。</p>
+<p>以rpc开头的方法名预留作为系统扩展，且必须用于其他地方。每个系统扩展都应该有相关规范文档，所有系统扩展都应是可选的。</p>
+<hr />
+<p>Copyright (C) 2007-2010 by the JSON-RPC Working Group</p>
+<p>This document and translations of it may be used to implement JSON-RPC, it may be copied and furnished to others, and derivative works that comment on or otherwise explain it or assist in its implementation may be prepared, copied, published and distributed, in whole or in part, without restriction of any kind, provided that the above copyright notice and this paragraph are included on all such copies and derivative works. However, this document itself may not bemodified in any way.</p>
 </div>
 
         </div>
@@ -315,6 +314,11 @@
                 Powered by <a href="http://simiki.org/" target="_blank">Simiki</a>.
             </span>
         </div>
-        
+        <div style="display:none">
+
+    <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_4152214'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/stat.php%3Fid%3D4152214%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+
+
+</div>
     </body>
 </html>
